@@ -1,5 +1,4 @@
-# Tutorial de Docker para Principiantes
-
+# Introducción
 ## ¿Qué es Docker?
 
 Docker es una plataforma que te permite **empaquetar aplicaciones junto con todas sus dependencias** en contenedores. Imagina que quieres enviar un pastel a alguien: en lugar de enviar solo el pastel y esperar que la otra persona tenga los platos, cubiertos y servilletas correctas, Docker te permite enviar todo junto en una caja completa y lista para usar.
