@@ -151,17 +151,29 @@ COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80
 ```
 
-**Paso 4**: Construye tu imagen
+**Paso 4**: Construye tu imagen (Comparado con POO la imagen es como una clase)
 ```bash
 docker build -t mi-hola-mundo .
 ```
 
-**Paso 5**: Ejecuta tu contenedor
+**Paso 5**: Ejecuta tu contenedor (Comparado con POO esto sería una instancia, eso quiere decir que hola-contenedor es una instancia de mi-hola.mundo)
 ```bash
-docker run -d -p 8080:80 --name hola-contenedor mi-hola-mundo
+docker run -d -p 8080:80 --name hola-contenedor mi-hola-mundo 
 ```
 
 **Paso 6**: Abre tu navegador en `http://localhost:8080`
+
+**Paso 7**: Enlazar lo que se escribre de código con lo que está escrito en el contenedor
+
+```bash
+docker run -d -p 8081:80 --name hola-contenedor -v ${PWD}:/usr/share/nginx/html mi-hola-mundo
+```
+
+También puede ser nginx con la imagen original de nginx
+
+```bash
+docker run -d -p 8081:80 --name hola-contenedor -v ${PWD}:/usr/share/nginx/html nginx
+```
 
 ## Explicación del Dockerfile
 
