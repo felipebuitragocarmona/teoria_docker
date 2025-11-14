@@ -367,49 +367,114 @@ Werkzeug==3.0.1
 ### 📄 `Dockerfile`
 
 ```dockerfile
+
+# Imagen base: una imagen oficial de Python 3.11 basada en Debian slim.
+# Importante: "slim" reduce tamaño al eliminar paquetes no esenciales,
+# pero puede requerir instalar dependencias del sistema si tu app las necesita.
 FROM python:3.11-slim
 
-# Establecer directorio de trabajo
+# Establece el directorio de trabajo dentro del contenedor.
+# Todas las instrucciones posteriores (COPY, RUN, CMD, etc.) se ejecutan
+# relativas a /app. Mantener un WORKDIR claro mejora la legibilidad.
 WORKDIR /app
 
-# Copiar requirements
+# Copia el archivo de requisitos al contenedor (ruta relativa al contexto de build).
+# Esto se hace antes de copiar todo el código para aprovechar la cache de Docker:
+# si requirements.txt no cambia, la capa con pip install se reutiliza.
 COPY requirements.txt .
 
-# Instalar dependencias
+# Instala las dependencias de Python listadas en requirements.txt.
+# --no-cache-dir evita que pip almacene archivos descargados en /root/.cache,
+# reduciendo el tamaño final de la imagen.
+# Es buena práctica agrupar (RUN) instalaciones para minimizar capas.
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar código
+# Copia todo el contenido del contexto de construcción al contenedor.
+# Atención: si no usas .dockerignore, estarás copiando archivos innecesarios
+# (venv, .git, datos locales), lo que incrementa el contexto y la imagen.
 COPY . .
 
-# Exponer puerto
+# Señala que la aplicación escuchará en el puerto 5000.
+# EXPOSE es metadata útil para documentación y para algunas herramientas,
+# pero no publica el puerto por sí mismo (eso se hace con -p/--publish al correr).
 EXPOSE 5000
 
-# Comando de inicio
+# Comando por defecto cuando se arranca el contenedor.
+# Aquí se usa JSON array para evitar el wrapper shell (`sh -c`) y que los
+# signals (SIGTERM) lleguen correctamente al proceso Python.
 CMD ["python", "app.py"]
+
+
 ```
 
 ### 📄 `docker-compose.yml`
 
 ```yaml
 version: '3.8'
+# Versión del formato de docker-compose.
+# Especificarla garantiza compatibilidad de sintaxis y características del archivo.
+# La versión 3.8 es estable y funciona muy bien para entornos locales y de producción ligera.
 
 services:
   flask-app:
+    # Nombre del servicio: define un contenedor basado en la app Flask.
+    # Docker Compose puede ejecutar múltiples servicios (db, redis, backend, etc.); este es uno de ellos.
+
     build: .
+    # Indica que debe construir la imagen usando el Dockerfile ubicado en el directorio actual (.)
+    # Esto es útil cuando tienes un Dockerfile personalizado.
+    # Si ya tuvieras una imagen construida, podrías usar "image: nombre:tag" en lugar de build.
+
     container_name: flask-simple-api
+    # Nombre legible del contenedor.
+    # Si no se especifica, Docker genera uno automáticamente.
+    # Importante: usar nombres fijos puede causar conflictos si creas múltiples instancias.
+
     ports:
       - "5000:5000"
+    # Publica el puerto 5000 del contenedor en el 5000 de tu máquina.
+    # Formato: "HOST:CONTENEDOR"
+    # Importante:
+    # - Contenedor escucha en 5000 (desde EXPOSE o app)
+    # - Host también 5000 → accedes desde: http://localhost:5000
+
     volumes:
       # Hot-reload del código
       - ./app.py:/app/app.py
+      # Esto monta el archivo app.py del host sobre el del contenedor.
+      # Efecto: cambios en tu máquina se reflejan inmediatamente dentro del contenedor.
+      # Esto es IDEAL para desarrollo, pero NO debe usarse en producción.
+
       # Persistencia de datos
       - ./data:/app/data
+      # Permite guardar datos en la carpeta ./data de tu máquina.
+      # Si no montaras un volumen, los datos dentro del contenedor se perderían al eliminarlo.
+
     environment:
       - FLASK_ENV=development
+      # FLASK_ENV indica el entorno de ejecución.
+      # "development": activa modo debug, recarga automática y mensajes detallados de error.
+
       - FLASK_DEBUG=1
+      # Fuerza debug activado. Útil si FLASK_ENV no es suficiente.
+      # Jamás usar esto en producción (expondría stacktraces y ejecución remota de código).
+
       - PYTHONUNBUFFERED=1
+      # Hace que Python escriba logs directamente en la salida estándar (sin buffer).
+      # Es importante para que los logs se muestren inmediatamente en `docker logs`.
+
     command: python app.py
+    # Sobrescribe el CMD del Dockerfile.
+    # Le dice a Docker qué proceso debe ejecutarse dentro del contenedor.
+    # Esto permite cambiar el comando sin modificar la imagen.
+    # NOTA: si quisieras usar gunicorn en prod, aquí podrías poner:
+    # command: gunicorn -b 0.0.0.0:5000 app:app
+
     restart: unless-stopped
+    # Política de reinicio:
+    # - Reinicia el contenedor automáticamente si se detiene por un error.
+    # - No lo reinicia si tú lo detienes manualmente.
+    # Es ideal para entornos pequeños o microservicios simples.
 ```
 
 ### 📄 `.dockerignore`
