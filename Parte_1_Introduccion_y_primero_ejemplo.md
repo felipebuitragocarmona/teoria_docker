@@ -19,6 +19,10 @@ Docker es una plataforma que te permite **empaquetar aplicaciones junto con toda
 
 **Volumen (Volume)**: Es un espacio de almacenamiento que persiste incluso cuando el contenedor se detiene o elimina. Útil para guardar bases de datos o archivos importantes.
 
+![Infografía Docker](imagenes/AnalogiasConceptos.png)
+
+![Infografía Docker 2](imagenes/ConceptosFundamentales.png)
+
 ## Instalación
 
 Primero necesitas instalar Docker Desktop desde [docker.com](https://www.docker.com/). Está disponible para Windows, Mac y Linux.
@@ -114,6 +118,7 @@ docker run -d -p 8080:80 --name mi-primer-servidor nginx
 
 # Ahora abre tu navegador en: http://localhost:8080
 ```
+![ImagenRedes](imagenes/Redes.png)
 
 ¡Verás la página de bienvenida de Nginx! Acabas de crear un servidor web en segundos.
 
