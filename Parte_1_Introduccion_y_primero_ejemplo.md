@@ -50,79 +50,129 @@ docker rmi nombre-imagen
 docker build -t nombre-de-tu-imagen .
 ```
 
-### 🚀 Trabajando con Contenedores
+
+# Guía básica de Docker con Alpine y Nginx
+
+## 1. Descargar la imagen Alpine
 
 ```bash
-# Crear y ejecutar un contenedor desde una imagen
-docker run nombre-imagen
+docker pull alpine
+```
 
-# Ejecutar un contenedor en segundo plano (modo detached)
-docker run -d nombre-imagen
+Esto descarga la imagen oficial de Alpine Linux.
 
-# Ejecutar con un nombre personalizado y mapeo de puertos
-docker run -d -p 8080:80 --name mi-contenedor nombre-imagen
+## 2. Ejecutar Alpine en modo interactivo
 
-# Listar contenedores en ejecución
-docker ps
+```bash
+docker run -it alpine sh
+```
 
-# Listar TODOS los contenedores (incluidos los detenidos)
+Entrarás a una terminal dentro del contenedor Alpine.
+
+## 3. Instalar Python y pip en Alpine
+
+Dentro del contenedor ejecuta:
+
+```bash
+apk add python3 py3-pip
+```
+
+Verifica la instalación:
+
+```bash
+python3 --version
+pip3 --version
+```
+
+## 4. Ver imágenes descargadas
+
+Sal del contenedor:
+
+```bash
+exit
+```
+
+Luego revisa las imágenes:
+
+```bash
+docker images
+```
+
+## 5. Eliminar la imagen Alpine
+
+Primero asegúrate de que no haya contenedores usando Alpine:
+
+```bash
 docker ps -a
-
-# Detener un contenedor
-docker stop nombre-contenedor
-
-# Iniciar un contenedor detenido
-docker start nombre-contenedor
-
-# Reiniciar un contenedor
-docker restart nombre-contenedor
-
-# Eliminar un contenedor
-docker rm nombre-contenedor
-
-# Ver los logs de un contenedor
-docker logs nombre-contenedor
-
-# Entrar a un contenedor en ejecución (modo interactivo)
-docker exec -it nombre-contenedor /bin/bash
 ```
 
-### 🧹 Limpieza
+Si existe un contenedor Alpine, elimínalo:
 
 ```bash
-# Eliminar todos los contenedores detenidos
-docker container prune
-
-# Eliminar todas las imágenes no utilizadas
-docker image prune
-
-# Limpieza completa (¡cuidado!)
-docker system prune -a
+docker rm <ID_DEL_CONTENEDOR>
 ```
 
-## ¡Hola Mundo con Docker!
-
-### Opción 1: Lo Más Simple
+Luego elimina la imagen:
 
 ```bash
-docker run hello-world
+docker rmi alpine
 ```
 
-Este comando descarga una imagen de prueba y ejecuta un contenedor que imprime un mensaje de bienvenida.
-
-### Opción 2: Servidor Web con Nginx
+## 6. Ejecutar Nginx como API Gateway
 
 ```bash
-# Descargar y ejecutar nginx
-docker run -d -p 8080:80 --name mi-primer-servidor nginx
-
-# Ahora abre tu navegador en: http://localhost:8080
+docker run -d -p 8080:80 --name my_api_gateway nginx:alpine
 ```
+
+Esto crea un contenedor llamado `my_api_gateway`.
+
+Accede desde el navegador:
+
+```text
+http://localhost:8080
+```
+
+## 7. Entrar al contenedor Nginx
+
+```bash
+docker exec -it my_api_gateway sh
+```
+
+## 8. Actualizar paquetes e instalar nano
+
+Dentro del contenedor Nginx:
+
+```bash
+apk update
+apk add nano
+```
+
+## 9. Ir al directorio web de Nginx
+
+```bash
+cd /usr/share/nginx/html
+```
+
+Ahí puedes editar el archivo principal:
+
+```bash
+nano index.html
+```
+
+## 10. Ver cambios
+
+Guarda el archivo y abre nuevamente:
+
+```text
+http://localhost:8080
+```
+
+
 ![ImagenRedes](imagenes/Redes.png)
 
-¡Verás la página de bienvenida de Nginx! Acabas de crear un servidor web en segundos.
 
-### Opción 3: Crear tu Propio "Hola Mundo"
+
+### Crear tu Propio "Hola Mundo"
 
 **Paso 1**: Crea una carpeta para tu proyecto
 ```bash
@@ -194,6 +244,56 @@ docker run -d -p 8081:80 --name hola-contenedor -v ${PWD}:/usr/share/nginx/html 
 4. **Ejecutas** un contenedor con `docker run`
 5. **Pruebas** que todo funcione
 6. **Publicas** tu imagen a Docker Hub (opcional)
+
+### 🚀 Trabajando con Contenedores
+
+```bash
+# Crear y ejecutar un contenedor desde una imagen
+docker run nombre-imagen
+
+# Ejecutar un contenedor en segundo plano (modo detached)
+docker run -d nombre-imagen
+
+# Ejecutar con un nombre personalizado y mapeo de puertos
+docker run -d -p 8080:80 --name mi-contenedor nombre-imagen
+
+# Listar contenedores en ejecución
+docker ps
+
+# Listar TODOS los contenedores (incluidos los detenidos)
+docker ps -a
+
+# Detener un contenedor
+docker stop nombre-contenedor
+
+# Iniciar un contenedor detenido
+docker start nombre-contenedor
+
+# Reiniciar un contenedor
+docker restart nombre-contenedor
+
+# Eliminar un contenedor
+docker rm nombre-contenedor
+
+# Ver los logs de un contenedor
+docker logs nombre-contenedor
+
+# Entrar a un contenedor en ejecución (modo interactivo)
+docker exec -it nombre-contenedor /bin/bash
+```
+
+### 🧹 Limpieza
+
+```bash
+# Eliminar todos los contenedores detenidos
+docker container prune
+
+# Eliminar todas las imágenes no utilizadas
+docker image prune
+
+# Limpieza completa (¡cuidado!)
+docker system prune -a
+```
 
 ## Tips para Principiantes
 
