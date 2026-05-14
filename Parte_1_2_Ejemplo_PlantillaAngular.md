@@ -108,7 +108,7 @@ Angular debería recompilar automáticamente y refrescar la app.
 ## 6. Entrar al contenedor
 
 ```bash
-docker compose exec nebular_app bash
+docker exec -it ngx_admin_app /bin/bash
 ```
 
 Dentro puedes revisar:
@@ -117,6 +117,7 @@ Dentro puedes revisar:
 node -v
 npm -v
 npx ng version
+ng g m pages/test --routing
 ```
 
 ---

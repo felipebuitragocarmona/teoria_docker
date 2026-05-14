@@ -1,5 +1,6 @@
 # Flask + Python 2.7 + Docker Compose con Hot Reload
 
+
 ## Estructura
 
 ```bash
@@ -9,6 +10,8 @@ flask_python27/
 ├── Dockerfile
 └── docker-compose.yml
 ```
+
+![Infografía Práctica Flask](imagenes/PracticaFLASK.png)
 
 ---
 
